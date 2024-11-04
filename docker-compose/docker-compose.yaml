@@ -1,0 +1,21 @@
+services:
+  kafka:
+    image: landoop/fast-data-dev:latest
+    container_name: kafka
+    ports:
+      # http://localhost:3030
+      - "3030:3030" # Web UI
+      - "8081:8081" # Schema registry
+      - "8082:8082" # Kafka REST proxy
+      - "8083:8083" # Kafka connect distributed
+      - "9092:9092" # Kafka broker
+      - "2181:2181" # ZooKeeper
+    environment:
+      ADV_HOST: 127.0.0.1
+      RUNTESTS: 0 # Disable Running tests so the cluster starts faster
+      DEBUG: 1
+      SAMPLEDATA: 1 # Disable creating sample topics
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+volumes:
+  kafka_data:

@@ -1,0 +1,20 @@
+<configuration>
+
+    <!-- Define Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- Set the default logging level for the entire application -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+
+    <!-- Set Kafka logging to INFO to suppress debug messages -->
+    <logger name="org.apache.kafka" level="INFO" />
+
+</configuration>

@@ -14,11 +14,13 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
+// See https://medium.com/@swatikpl44/implementing-retry-mechanism-for-events-using-kafka-3a849eac9f2a
 class InventoryEventConsumer {
     private KafkaConsumer<String, String> consumer;
     private KafkaProducer<String, String> producer;
 
     private static final String TOPIC_NAME = "order_events";
+    private static final String RETRY_TOPIC_NAME = "order_events_retry";
 
     public static void main(String[] args) {
         InventoryEventConsumer inventoryEventConsumer = new InventoryEventConsumer();
@@ -59,7 +61,7 @@ class InventoryEventConsumer {
     private void handleRetry(ConsumerRecord<String, String> record) {
         // Send to retry topic with retry count
         String retryValue = record.value() + "|retry=" + 1;
-        producer.send(new ProducerRecord<>("order_events_retry", record.key(), retryValue));
+        producer.send(new ProducerRecord<>(RETRY_TOPIC_NAME, record.key(), retryValue));
         System.out.println("Retrying event, attempt " + 1 + ": " + record.value());
     }
 

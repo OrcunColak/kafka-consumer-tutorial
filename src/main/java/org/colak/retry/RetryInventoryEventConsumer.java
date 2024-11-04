@@ -14,12 +14,14 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
+// See https://medium.com/@swatikpl44/implementing-retry-mechanism-for-events-using-kafka-3a849eac9f2a
 public class RetryInventoryEventConsumer {
 
     private KafkaConsumer<String, String> consumer;
     private KafkaProducer<String, String> producer;
 
-    private static final String TOPIC_NAME = "order_events";
+    private static final String TOPIC_NAME = "order_events_retry";
+    private static final String DLQ_TOPIC_NAME = "order_events_dlq";
 
     private static final int MAX_RETRIES = 3;
 
@@ -66,12 +68,12 @@ public class RetryInventoryEventConsumer {
     private void handleRetry(ConsumerRecord<String, String> record, int attempt) {
         if (attempt > MAX_RETRIES) {
             // Send to DLQ if maximum retries reached
-            producer.send(new ProducerRecord<>("order_events_dlq", record.key(), record.value()));
+            producer.send(new ProducerRecord<>(DLQ_TOPIC_NAME, record.key(), record.value()));
             System.out.println("Event sent to DLQ: " + record.value());
         } else {
             // Send to retry topic with retry count
             String retryValue = record.value() + "|retry=" + attempt;
-            producer.send(new ProducerRecord<>("order_events_retry", record.key(), retryValue));
+            producer.send(new ProducerRecord<>(TOPIC_NAME, record.key(), retryValue));
             System.out.println("Retrying event, attempt " + attempt + ": " + record.value());
         }
     }

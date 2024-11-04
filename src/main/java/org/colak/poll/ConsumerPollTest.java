@@ -1,4 +1,4 @@
-package org.colak.consumer;
+package org.colak.poll;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -13,18 +13,18 @@ import java.util.Collections;
 import java.util.Properties;
 
 @Slf4j
-public class Consumer {
+class ConsumerPollTest {
 
     private static final String TOPIC_NAME = "demo_topic";
 
     private KafkaConsumer<String, String> kafkaConsumer;
 
     public static void main(String[] args) {
-        Consumer consumer = new Consumer();
-        consumer.consume();
+        ConsumerPollTest consumerPollTest = new ConsumerPollTest();
+        consumerPollTest.start();
     }
 
-    private void consume() {
+    private void start() {
         kafkaConsumer = createConsumer();
         kafkaConsumer.subscribe(Collections.singletonList(TOPIC_NAME));
 
@@ -39,12 +39,14 @@ public class Consumer {
             ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(1));
 
             for (ConsumerRecord<String, String> consumerRecord : records) {
-                log.info("Received Key " + consumerRecord.key() +
-                         " Value " + consumerRecord.value());
-                log.info("Partition " + consumerRecord.partition() +
-                         " Offset " + consumerRecord.offset());
+                processEvent(consumerRecord);
             }
         }
+    }
+
+    private void processEvent(ConsumerRecord<String, String> consumerRecord) {
+        log.info("Received Key : {} Value :{}", consumerRecord.key(), consumerRecord.value());
+        log.info("Partition : {} Offset : {}", consumerRecord.partition(), consumerRecord.offset());
     }
 
     private void addShutdownHook() {
